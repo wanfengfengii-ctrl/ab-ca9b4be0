@@ -1,0 +1,49 @@
+services:
+  api:
+    build:
+      context: .
+      target: api
+    environment:
+      PYTHONUNBUFFERED: "1"
+    ports:
+      - "${API_PORT:-8010}:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=2).status==200 else 1)"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 8s
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      target: web
+    ports:
+      - "${WEB_PORT:-8080}:8080"
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 5s
+    restart: unless-stopped
+
+  # 一次性验证：依赖健康后自动运行 代码测试 + 前端构建 + 判读接口烟测，
+  # 以退出码报告结果（docker compose up verify；正常退出码 0）。
+  verify:
+    build:
+      context: .
+      target: verify
+    environment:
+      API_URL: http://api:8000
+      WEB_URL: http://web:8080
+    depends_on:
+      api:
+        condition: service_healthy
+      web:
+        condition: service_healthy
+    restart: "no"

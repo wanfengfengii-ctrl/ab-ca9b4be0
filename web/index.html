@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>双应答机雷达脉冲联合判读</title>
+  <link rel="stylesheet" href="src/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1>海上搜救演练 · 双应答机脉冲联合判读</h1>
+    <p class="subtitle">从混合雷达脉冲中联合还原两台固定整数周期应答机，避免漏收长间隔被错接到相邻设备</p>
+  </header>
+
+  <main>
+    <section class="panel">
+      <h2>1 · 接收机记录</h2>
+      <label for="times">到达时刻（整数微秒，8–16 条，空格 / 逗号 / 换行分隔，须严格递增）</label>
+      <textarea id="times" rows="3" spellcheck="false"
+        placeholder="例如：0 7 44 50 81 100 118 150 155 192 200"></textarea>
+      <div class="hint" id="timesHint"></div>
+    </section>
+
+    <section class="panel machines">
+      <div class="machine-card" id="cardA">
+        <h2>2A · 应答机 A</h2>
+        <div class="grid">
+          <label>周期下限 (µs)<input type="number" id="a_min" min="10" max="200" value="10" /></label>
+          <label>周期上限 (µs)<input type="number" id="a_max" min="10" max="200" value="200" /></label>
+          <label>单周期计时误差 (µs)<input type="number" id="a_tol" min="0" max="1000" value="2" /></label>
+          <label>最多漏收数<input type="number" id="a_miss" min="0" max="200" value="2" /></label>
+        </div>
+      </div>
+      <div class="machine-card" id="cardB">
+        <h2>2B · 应答机 B</h2>
+        <div class="grid">
+          <label>周期下限 (µs)<input type="number" id="b_min" min="10" max="200" value="10" /></label>
+          <label>周期上限 (µs)<input type="number" id="b_max" min="10" max="200" value="200" /></label>
+          <label>单周期计时误差 (µs)<input type="number" id="b_tol" min="0" max="1000" value="2" /></label>
+          <label>最多漏收数<input type="number" id="b_miss" min="0" max="200" value="2" /></label>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel actions">
+      <button id="run" type="button">判读</button>
+      <button id="sample" type="button" class="ghost">填入示例</button>
+      <span id="formError" class="form-error"></span>
+    </section>
+
+    <section id="report" class="panel hidden" aria-live="polite"></section>
+  </main>
+
+  <footer>联合选择两台固定整数周期 · 噪声最少优先，其次漏收总数最少</footer>
+  <script src="src/app.js"></script>
+</body>
+</html>
